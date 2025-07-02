@@ -6,6 +6,8 @@ import com.lamz.model.toTodoItem
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 import java.util.*
 
@@ -23,8 +25,9 @@ object TodoRepository {
     }
 
     fun getTodoByTitleAndCompletedRaw(title: String): TodoItem? = transaction {
+        val today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         Todos.selectAll()
-            .where{ (Todos.title eq title) and (Todos.completed eq true) }
+            .where{ (Todos.title eq title) and (Todos.completed eq true) and (Todos.date eq today) }
             .limit(1)
             .map { it.toTodoItem() }
             .singleOrNull()
