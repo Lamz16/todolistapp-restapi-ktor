@@ -6,6 +6,7 @@ import com.lamz.model.toTodoItem
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
+
 import java.util.*
 
 
@@ -20,6 +21,15 @@ object TodoRepository {
     fun countAll() : Long = transaction {
         Todos.selectAll().count()
     }
+
+    fun getTodoByTitleAndCompletedRaw(title: String): TodoItem? = transaction {
+        Todos.selectAll()
+            .where{ (Todos.title eq title) and (Todos.completed eq true) }
+            .limit(1)
+            .map { it.toTodoItem() }
+            .singleOrNull()
+    }
+
 
     fun getById(id : String) : TodoItem? = transaction {
         Todos.select (Todos.id eq UUID.fromString(id))
