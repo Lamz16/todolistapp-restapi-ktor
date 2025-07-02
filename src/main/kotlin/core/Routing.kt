@@ -30,19 +30,36 @@ fun Application.configureRouting() {
             val data = TodoRepository.getAllTodo(page, size)
             val total = TodoRepository.countAll()
 
-            call.respond(
-                status = HttpStatusCode.OK,
-                ApiResponse(
-                    status = 200,
-                    message = "Successfuly Get Data Todo",
-                    data = PaginatedResponse(
-                        page = page,
-                        size = size,
-                        total = total,
-                        data = data
+            if (size > 0){
+                call.respond(
+                    status = HttpStatusCode.OK,
+                    ApiResponse(
+                        status = 200,
+                        message = "Successfuly Get Data Todo",
+                        data = PaginatedResponse(
+                            page = page,
+                            size = size,
+                            total = total,
+                            data = data
+                        )
                     )
                 )
-            )
+            }else {
+                call.respond(
+                    status = HttpStatusCode.OK,
+                    ApiResponse(
+                        status = 201,
+                        message = "Data Todo Is Empty",
+                        data = PaginatedResponse(
+                            page = page,
+                            size = size,
+                            total = total,
+                            data = data
+                        )
+                    )
+                )
+            }
+
         }
 
         get("/todos-by-title/{title}"){
@@ -66,14 +83,22 @@ fun Application.configureRouting() {
                 if (todo != null){
                     call.respond(todo)
                 }else{
-                    call.respond(HttpStatusCode.NotFound)
+                    call.respond(status = HttpStatusCode.NotFound,
+                        ErrorResponse(
+                            status = 404,
+                            message = "Data todo not found"
+                        ))
                 }
             }
 
             post("/create-todos") {
                 val todo = call.receive<TodoItem>()
                 val saved = TodoRepository.addTodo(todo.copy(id = UUID.randomUUID().toString()))
-                call.respond(HttpStatusCode.Created, saved)
+                call.respond(HttpStatusCode.Created, ApiResponse(
+                    status = 200,
+                    message = "Success add data todo",
+                    data = saved
+                ))
             }
 
             put("update-todos/{id}"){
@@ -90,7 +115,7 @@ fun Application.configureRouting() {
         delete("delete-todos/{id}") {
             val id = call.parameters["id"]
             if (id != null && TodoRepository.delete(id)){
-                call.respondText("Deleted successfully") // ✅ Ubah jadi berhasil
+                call.respondText("Deleted successfully")
             } else {
                 call.respond(HttpStatusCode.NotFound)
             }
