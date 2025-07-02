@@ -3,6 +3,8 @@ package com.lamz.core
 import com.lamz.data.TodoRepository
 import com.lamz.model.PaginatedResponse
 import com.lamz.model.TodoItem
+import core.ApiResponse
+import core.ErrorResponse
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -29,11 +31,16 @@ fun Application.configureRouting() {
             val total = TodoRepository.countAll()
 
             call.respond(
-                PaginatedResponse(
-                    page = page,
-                    size = size,
-                    total = total,
-                    data = data
+                status = HttpStatusCode.OK,
+                ApiResponse(
+                    status = 200,
+                    message = "Successfuly Get Data Todo",
+                    data = PaginatedResponse(
+                        page = page,
+                        size = size,
+                        total = total,
+                        data = data
+                    )
                 )
             )
         }
@@ -44,7 +51,11 @@ fun Application.configureRouting() {
             if (todo != null){
                 call.respond(todo)
             }else{
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(status = HttpStatusCode.NotFound,
+                    ErrorResponse(
+                        status = 404,
+                        message = "Todo with title $title and completed=true not found"
+                    ))
             }
         }
 
