@@ -1,8 +1,5 @@
 package com.lamz.core
 
-import com.lamz.configureDatabases
-import com.lamz.configureFrameworks
-import com.lamz.configureSerialization
 import com.lamz.data.DatabaseFactory
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
