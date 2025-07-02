@@ -7,7 +7,6 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -37,6 +36,16 @@ fun Application.configureRouting() {
                     data = data
                 )
             )
+        }
+
+        get("/todos-by-title/{title}"){
+            val title = call.parameters["title"]
+            val todo = title?.let { TodoRepository.getTodoByTitleAndCompletedRaw(title) }
+            if (todo != null){
+                call.respond(todo)
+            }else{
+                call.respond(HttpStatusCode.NotFound)
+            }
         }
 
 
